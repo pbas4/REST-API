@@ -6,7 +6,18 @@ const Ninja = require('../models/ninja')
 
 // Get a list of ninjas from the db
 router.get('/ninjas', (req, res, next) => {
-    res.send({ type: 'GET' })
+    // Ninja.findByIdAndUpdate({}).then((ninjas) => {
+    //     res.send(ninjas)
+    // })
+
+    Ninja.aggregate().near({
+        near: { type: "Point", coordinates: [parseFloat(req.query.lng) , parseFloat(req.query.lat)] },
+                    distanceField: "dist.calculated",
+                    maxDistance: 100000,
+                    spherical: true
+        }).then(function(ninjas){
+            res.send(ninjas);
+        }).catch(next);
 })
 
 // Add a ninja to db
@@ -18,7 +29,12 @@ router.post('/ninjas', (req, res, next) => {
 
 // Update a ninja in the db
 router.put('/ninjas/:id', (req, res, next) => {
-    res.send({ type: 'PUT' })
+    const id = req.params.id    
+    Ninja.findByIdAndUpdate({ _id: id }, req.body).then(() => {
+        Ninja.findOne({ _id: id }).then((ninja) => {
+            res.send(ninja)
+        })
+    })
 })
 
 // Delete a ninja from de db
