@@ -11,6 +11,8 @@ const app = express()
 mongoose.connect('mongodb://localhost/ninjago')
 mongoose.Promise = global.Promise // because deprecated
 
+app.use(express.static('public'))
+
 // PArse data to JSON
 app.use(bodyParser.json())
 
